@@ -31,6 +31,10 @@ vec3 colors[]{vec3{1},vec3{1},vec3{1},vec3{1},vec3{1},vec3{1},vec3{1},vec3{1},ve
 int Mats[]{LIGHT,LAMBERT,LAMBERT,LAMBERT,LAMBERT,LAMBERT,LAMBERT,MIRR,LAMBERT,GLASS};
 bool Repaint=false,lighting=true;
 void viewport(GLFWwindow* w,int wid,int hig){
+    while(wid==0||hig==0){
+        glfwGetFramebufferSize(w,&wid,&hig);
+        glfwWaitEvents();
+    }
     glViewport(0,0,wid,hig);
     horizon=float(wid)/200;
     vertical=float(hig)/200;
@@ -156,7 +160,6 @@ int main(){
         glBindTexture(GL_TEXTURE0,texture[Index%2]);
         glDrawArrays(GL_TRIANGLES,0,6);
 
-        end=steady_clock::now();
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -236,6 +239,8 @@ int main(){
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         ++Index;
+
+        end=steady_clock::now();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
