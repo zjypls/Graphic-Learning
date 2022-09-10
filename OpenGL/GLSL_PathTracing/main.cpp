@@ -9,11 +9,13 @@
 
 std::uniform_int_distribution<int> uid(1,1<<20);
 std::default_random_engine dre;
-Camera camera{vec3(0,0,1),vec3(4,0,0),vec3(0,3,0),vec3(-2,-1.5,-1)};
+Camera camera{vec3(0,0,1),vec3(4,0,0),vec3(0,3,0),vec3(-2,-1.5,-1),vec3{1,1,1},vec3{0,0,-1},1.57,0,2,0.001};
 int depth=8;
 float msaa=4.0f;
+double lstX=400,lstY=300;
 unsigned FBO[2],texture[2],rbo[2];
-bool viewportChange=false;
+bool viewportChange=false,rightClick= false;
+int Index=1,ObjIndex=0,MatIndex=2;
 const float vert[]={
         1,1,0,
         -1,-1,0,
@@ -25,8 +27,14 @@ const float vert[]={
 };
 float horizon=4,vertical=3;
 using namespace std::chrono;
-
-int Index=1,ObjIndex=0,MatIndex=2;
+decltype(steady_clock::now()) preTime{};
+void CursorCall(GLFWwindow*,double x,double y){
+    if(rightClick){
+        camera.Update(x-lstX,y-lstY);
+        Index=1;
+    }
+    lstX=x,lstY=y;
+}
 vec3 colors[]{vec3{1},vec3{1},vec3{1},vec3{1},vec3{1},vec3{1},vec3{1},vec3{1},vec3{1},vec3{1}};
 int Mats[]{LIGHT,LAMBERT,LAMBERT,LAMBERT,LAMBERT,LAMBERT,LAMBERT,MIRR,LAMBERT,GLASS};
 bool Repaint=false,lighting=true;
@@ -38,9 +46,9 @@ void viewport(GLFWwindow* w,int wid,int hig){
     glViewport(0,0,wid,hig);
     horizon=float(wid)/200;
     vertical=float(hig)/200;
-    camera.horizon.pos[0]=horizon;
-    camera.vertical.pos[1]=vertical;
-    camera.leftcorner=vec3(-horizon/2.0f,-vertical/2.0f,-1);
+    camera.horizon=camera.horizon*(horizon/camera.horizon.length());
+    camera.vertical=camera.vertical*(vertical/camera.vertical.length());
+    camera.leftcorner=camera.ForWord*camera.focus-camera.horizon*0.5f-camera.vertical*0.5f;
     Index=1;
     for(int i=0;i<2;++i){
         glBindFramebuffer(GL_FRAMEBUFFER,FBO[i]);
@@ -58,9 +66,10 @@ void viewport(GLFWwindow* w,int wid,int hig){
             throw runtime_error{"FrameBuffer not complete"};
         }
     }
-    glBindFramebuffer(GL_FRAMEBUFFER,0);
+    //(GL_FRAMEBUFFER,0);
     viewportChange=true;
 }
+void KeyCall(GLFWwindow *,int,int,int,int);
 const char* objects[]{"Top Light","Top Wall","Left Wall","Right Wall","Back Wall","BackGround","Ball 0","Ball 1","Ball 2","Ball 3"};
 const char* SurfaceType[]{"LAMBERT","MIRR","LIGHT","GLASS"};
 int main(){
@@ -68,7 +77,11 @@ int main(){
     //glfwWindowHint(GLFW_RESIZABLE,GLFW_FALSE);
     GLFWwindow* window= glfwCreateWindow(800,600,"Tracing", nullptr, nullptr);
     glfwMakeContextCurrent(window);
-
+    glfwSetCursorPos(window,lstX,lstY);
+    glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
+    glfwSetFramebufferSizeCallback(window,viewport);
+    glfwSetCursorPosCallback(window,CursorCall);
+    glfwSetKeyCallback(window,KeyCall);
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -76,8 +89,6 @@ int main(){
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 450");
-
-    glfwSetFramebufferSizeCallback(window,viewport);
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         return -1;
     unsigned VAO,VBO;
@@ -136,17 +147,26 @@ int main(){
     shader.AddObject(Face{-0.4,0.4,1.4,2.5,-1.4,-0.6,LIGHT,vec3(0,-1,0),vec3(1.1,1.99,-0.5),colors[0]},0);
     shader.AddObject(Face{-1.6,1.8,-0.6,2,-3,-1.5,LAMBERT,vec3(0,0,1),vec3(1.4,0.5,-2),colors[4]},4);
 
-    shader.Set("camera.origin",vec3(0,0,1));
+    shader.Set("camera.origin",camera.origin);
     auto start=steady_clock::now(),end=start;
 
     while(!glfwWindowShouldClose(window)){
         start=steady_clock::now();
-        if(duration_cast<milliseconds>(start-end).count()<20){
+        if(duration_cast<milliseconds>(start-end).count()<10){
             continue;
         }
+        if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_RIGHT)==GLFW_PRESS){
+            glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
+            rightClick=true;
+        }else{
+            glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_NORMAL);
+            rightClick=false;
+        }
+        glfwPollEvents();
         glBindFramebuffer(GL_FRAMEBUFFER,FBO[Index%2]);
         shader.use();
-        if(viewportChange) {
+        if(viewportChange||rightClick) {
+            shader.Set("camera.origin",camera.origin);
             shader.Set("camera.horizon", camera.horizon);
             shader.Set("camera.vertical", camera.vertical);
             shader.Set("camera.leftcorner", camera.leftcorner);
@@ -159,7 +179,6 @@ int main(){
         text.use();
         glBindTexture(GL_TEXTURE0,texture[Index%2]);
         glDrawArrays(GL_TRIANGLES,0,6);
-
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -225,6 +244,7 @@ int main(){
         if(Repaint){
             Repaint=false;
             repaint:
+
             for(auto i:FBO){
                 glBindFramebuffer(GL_FRAMEBUFFER,i);
                 glClearColor(0,0,0,0);
@@ -242,7 +262,6 @@ int main(){
 
         end=steady_clock::now();
         glfwSwapBuffers(window);
-        glfwPollEvents();
     }
     glDeleteFramebuffers(2,FBO);
     glDeleteRenderbuffers(2,rbo);
@@ -250,4 +269,33 @@ int main(){
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
+}
+
+void KeyCall(GLFWwindow *w,int key,int scanmode,int action,int mode){
+    if(key==GLFW_KEY_ESCAPE){
+        glfwSetWindowShouldClose(w,1);
+        return;
+    }
+    vec3 walkVec{0,0,0};
+    if(rightClick&&duration_cast<milliseconds>(steady_clock::now()-preTime).count()>20) {
+        Index=1;
+        switch (key) {
+            case GLFW_KEY_W:
+                walkVec = camera.ForWord;
+                break;
+            case GLFW_KEY_A:
+                walkVec = walkVec - (camera.horizon).normalize();
+                break;
+            case GLFW_KEY_D:
+                walkVec = (camera.horizon).normalize();
+                break;
+            case GLFW_KEY_S:
+                walkVec =walkVec-(camera.ForWord).normalize();
+                break;
+            case GLFW_KEY_SPACE:
+                walkVec = vec3(0, 1, 0);
+                break;
+        }
+    }
+    camera.origin=camera.origin+walkVec*0.01;
 }
