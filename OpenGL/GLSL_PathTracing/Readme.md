@@ -7,5 +7,5 @@ RarTring In One Week:
 >https://dezeming.top/?page_id=1871
 <br>
 
-效果:<br>
+效果(非PBR):<br>
 ![image](Res.jpg)
