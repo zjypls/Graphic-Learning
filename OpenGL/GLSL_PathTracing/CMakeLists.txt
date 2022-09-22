@@ -11,7 +11,16 @@ file(GLOB src CONFIG_DEPENDS *.cpp glad.c *.h)
 include_directories(${CMAKE_SOURCE_DIR}/Include/OpenGL dep)
 include_directories(${CMAKE_SOURCE_DIR}/Include/ImGui dep)
 
-link_directories(${CMAKE_SOURCE_DIR}/Include/OpenGL/lib-mingw64)
+
+IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(LIB_PATH ${CMAKE_SOURCE_DIR}/Include/OpenGL/lib-mingw64)
+ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set(LIB_PATH ${CMAKE_SOURCE_DIR}/Include/OpenGL/lib-vc2022)
+ELSE()
+    message(FATAL_ERROR "No libglfw3 support for ${CMAKE_CXX_COMPILER_ID}")
+ENDIF()
+
+link_directories(${LIB_PATH})
 
 add_executable(GLSL_PathTracing)
 target_include_directories(GLSL_PathTracing PUBLIC dep)
