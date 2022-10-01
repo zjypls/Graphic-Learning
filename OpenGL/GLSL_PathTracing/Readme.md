@@ -1,3 +1,4 @@
+在GLSL片元着色器阶段进行光线计算<br>
 参考资料:<br>
 RarTring In One Week:
 >https://raytracing.github.io/
