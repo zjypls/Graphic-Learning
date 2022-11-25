@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Shader.h"
+#include "RayShader.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -122,9 +122,15 @@ int main(){
     }
     glBindFramebuffer(GL_FRAMEBUFFER,0);
 
-    Shader shader{ R"(../Shaders/vert.glsl)",R"(../Shaders/nfrag.glsl)"};
-    Shader text{R"(../Shaders/vert.glsl)",R"(../Shaders/TextShader.glsl)"};
-    shader.use();
+    RayShader shader{};
+    shader.Add("../Shaders/vert.glsl",GL_VERTEX_SHADER);
+    shader.Add("../Shaders/nfrag.glsl",GL_FRAGMENT_SHADER);
+    shader.Link();
+    RayShader text{};
+    text.Add("../Shaders/vert.glsl",GL_VERTEX_SHADER);
+    text.Add("../Shaders/TextShader.glsl",GL_FRAGMENT_SHADER);
+    text.Link();
+    shader.Use();
 
     shader.Set("camera.horizon",camera.horizon);
     shader.Set("camera.vertical",camera.vertical);
@@ -164,7 +170,7 @@ int main(){
         }
         glfwPollEvents();
         glBindFramebuffer(GL_FRAMEBUFFER,FBO[Index%2]);
-        shader.use();
+        shader.Use();
         if(viewportChange||rightClick) {
             shader.Set("camera.origin",camera.origin);
             shader.Set("camera.horizon", camera.horizon);
@@ -176,7 +182,7 @@ int main(){
         glBindTexture(GL_TEXTURE0,texture[(Index+1)%2]);
         glDrawArrays(GL_TRIANGLES,0,6);
         glBindFramebuffer(GL_FRAMEBUFFER,0);
-        text.use();
+        text.Use();
         glBindTexture(GL_TEXTURE0,texture[Index%2]);
         glDrawArrays(GL_TRIANGLES,0,6);
 
@@ -191,7 +197,7 @@ int main(){
                 depth=1;
             else if(depth>256)
                 depth=256;
-            shader.use();
+            shader.Use();
             shader.Set("depth",depth);
             goto repaint;
         }
@@ -200,13 +206,13 @@ int main(){
                 msaa=128;
             else if(msaa<0)
                 msaa=1;
-            shader.use();
+            shader.Use();
             shader.Set("msaa",msaa);
             goto repaint;
         }
         ImGui::Combo("Objects",&ObjIndex,objects,10);
         if(ImGui::ColorEdit3("Color",const_cast<float*>(colors[ObjIndex].ptr()))){
-            shader.use();
+            shader.Use();
             if(ObjIndex<5) {
                 shader.Set((string("world.faces[") + to_string(ObjIndex) + "].color").c_str(),colors[ObjIndex]);
             }else{
@@ -215,7 +221,7 @@ int main(){
             goto repaint;
         }
         if(ImGui::Checkbox("Lighting",&lighting)){
-            shader.use();
+            shader.Use();
             if(lighting){
                 if(ObjIndex<4) {
                     shader.Set((string("world.faces[") + to_string(ObjIndex) + "].type").c_str(),LIGHT);
@@ -232,7 +238,7 @@ int main(){
             goto repaint;
         }
         if(ImGui::Combo("Material",&MatIndex,SurfaceType,4)){
-            shader.use();
+            shader.Use();
             if(ObjIndex<5) {
                 shader.Set((string("world.faces[") + to_string(ObjIndex) + "].type").c_str(),MatIndex);
             }else{
