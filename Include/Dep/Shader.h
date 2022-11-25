@@ -16,8 +16,8 @@ public:
     Shader();
     void Add(const std::string&,GLenum);
     inline void Link(){glLinkProgram(Program);};
-    inline void Use(){glUseProgram(Program);}
-    inline GLuint GetUniform(const char* name){return glGetUniformLocation(Program, name);};
+    inline void Use()const{glUseProgram(Program);}
+    inline GLuint GetUniform(const char* name)const{return glGetUniformLocation(Program, name);};
 
 };
 
