@@ -123,12 +123,12 @@ int main(){
     glBindFramebuffer(GL_FRAMEBUFFER,0);
 
     RayShader shader{};
-    shader.Add("../Shaders/vert.glsl",GL_VERTEX_SHADER);
-    shader.Add("../Shaders/nfrag.glsl",GL_FRAGMENT_SHADER);
+    shader.Add(std::string{RootPath}+"/Shaders/Ray/vert.glsl",GL_VERTEX_SHADER);
+    shader.Add(std::string{RootPath}+ "/Shaders/Ray/nfrag.glsl",GL_FRAGMENT_SHADER);
     shader.Link();
     RayShader text{};
-    text.Add("../Shaders/vert.glsl",GL_VERTEX_SHADER);
-    text.Add("../Shaders/TextShader.glsl",GL_FRAGMENT_SHADER);
+    text.Add(std::string{RootPath}+"/Shaders/Ray/vert.glsl",GL_VERTEX_SHADER);
+    text.Add(std::string{RootPath}+"/Shaders/Ray/TextShader.glsl",GL_FRAGMENT_SHADER);
     text.Link();
     shader.Use();
 

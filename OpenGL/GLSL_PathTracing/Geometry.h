@@ -77,7 +77,7 @@ struct Camera{
             theZ=-1.55;
         else if(theZ>1.55)
             theZ=1.55;
-        ForWord=vec3{sinf(theY)*sinf(theZ),cos(theY), -sinf(theY)*cosf(theZ)}.normalize();
+        ForWord=vec3{sinf(theY)*sinf(theZ),static_cast<float>(cos(theY)), -sinf(theY)*cosf(theZ)}.normalize();
         horizon=(ForWord*vec3(0,1,0)).normalize()*horizon.length();
         vertical=(horizon*ForWord).normalize()*vertical.length();
         leftcorner=(origin+(ForWord*focus)-horizon*0.5f-vertical*0.5f);
