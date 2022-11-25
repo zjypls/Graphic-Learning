@@ -22,6 +22,6 @@ link_directories(${LIB_PATH} ${CMAKE_SOURCE_DIR}/Lib)
 
 add_executable(GLSL_PathTracing)
 target_include_directories(GLSL_PathTracing PUBLIC dep)
-target_link_libraries(GLSL_PathTracing PUBLIC glfw3 ImGui)
+target_link_libraries(GLSL_PathTracing PUBLIC glfw3 ImGui Dep)
 
 target_sources(GLSL_PathTracing PUBLIC ${src})
