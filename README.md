@@ -1,3 +1,4 @@
 # Graphic-Learning
 
-Run build.bat
+Run build.bat\n
+(MinGW Needed)
