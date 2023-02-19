@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION 3.23)
+project(GLSL_PathTracing)
+
+set(CMAKE_CXX_STANDARD 14)
+#set(CMAKE_BUILD_TYPE RELEASE)
+message(${CMAKE_SOURCE_DIR})
+#set(EXECUTABLE_OUTPUT_PATH  ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_SOURCE_DIR}/bin>)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+file(GLOB src CONFIG_DEPENDS *.cpp *.h)
+include_directories(${CMAKE_SOURCE_DIR}/Include ${CMAKE_SOURCE_DIR}/Include/glfw/include/ dep)
+include_directories(${CMAKE_SOURCE_DIR}/Include/ImGui ${CMAKE_SOURCE_DIR}/Include/ImGui/backends ${CMAKE_SOURCE_DIR}/glm dep)
+
+#IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+#    set(LIB_PATH ${CMAKE_SOURCE_DIR}/Lib/lib-mingw64)
+#ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+#    set(LIB_PATH ${CMAKE_SOURCE_DIR}/Lib/lib-vc2022)
+#ELSE()
+#    message(FATAL_ERROR "There is No libglfw3 support for ${CMAKE_CXX_COMPILER_ID}")
+#ENDIF()
+link_directories(${CMAKE_SOURCE_DIR}/Lib ${Root_Inc}/GLFW/src)
+
+add_executable(GLSL_PathTracing)
+target_include_directories(GLSL_PathTracing PUBLIC dep)
+target_link_libraries(GLSL_PathTracing PUBLIC glfw3 glad ImGui Dep)
+
+target_sources(GLSL_PathTracing PUBLIC ${src})

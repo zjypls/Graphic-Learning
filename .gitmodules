@@ -1,0 +1,15 @@
+[submodule "Include/GLFW"]
+	path = Include/GLFW
+	url = https://github.com/glfw/glfw.git
+[submodule "Include/svpng"]
+	path = Include/svpng
+	url = https://github.com/miloyip/svpng.git
+[submodule "Include/ImGui"]
+	path = Include/ImGui
+	url = https://github.com/ocornut/imgui.git
+[submodule "Include/glm"]
+	path = Include/glm
+	url = https://github.com/Groovounet/glm.git
+[submodule "Include/tinyobjloader"]
+	path = Include/tinyobjloader
+	url = https://github.com/tinyobjloader/tinyobjloader.git

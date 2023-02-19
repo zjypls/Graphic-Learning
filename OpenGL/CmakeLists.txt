@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.23)
+
+project(OpenGL)
+add_subdirectory(Pick_Obj)
+add_subdirectory(GLSL_PathTracing)
