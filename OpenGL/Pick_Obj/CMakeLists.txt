@@ -11,7 +11,7 @@ include_directories(${Root_Inc}/Dep ${Root_Inc} ${Root_Inc}/glfw/include
         ${Root_Inc}/glm ${Root_Inc}/ImGui
         ${Root_Inc}/ImGui/backends
         dep)
-link_directories(${CMAKE_SOURCE_DIR}/Lib)
+link_directories(${CMAKE_SOURCE_DIR}/Lib ${Root_Inc}/glfw/src)
 add_executable(${PROJECT_NAME} main.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC dep)
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw3 ImGui Dep glad)
