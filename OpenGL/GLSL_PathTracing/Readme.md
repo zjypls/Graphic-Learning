@@ -1,7 +1,7 @@
 在GLSL片元着色器阶段进行光线计算<br>
 已在windows11平台通过编译<br><br>
 参考资料:<br>
-RarTring In One Week:
+RarTracing In One Week:
 >https://raytracing.github.io/
 <br>
 
