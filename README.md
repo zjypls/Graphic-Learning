@@ -2,7 +2,7 @@
 clone with
 >git clone --recursive https://github.com/zjypls/Graphic-Learning.git  
 
-This is all of rubbish ,go to zjypls/OpenGL_Render
+This is all of rubbish ,go to https://github.com/zjypls/OpenGL_Render
 
 
 
